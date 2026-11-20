@@ -63,26 +63,92 @@
     </div>
 
     <div class="card mb-3">
-        <div class="card-body d-flex flex-wrap align-items-center gap-2">
-            <span class="text-secondary small me-1">Produk per kategori:</span>
-            @foreach($summary['per_category'] as $category)
-                <span class="badge text-bg-light border">
-                    {{ $category->name }}
-                    <span class="text-secondary">({{ $category->products_count }})</span>
-                </span>
-            @endforeach
+        <div class="card-body">
+            <form method="GET" action="{{ route('products.index') }}" class="row g-2 align-items-end">
+                <div class="col-lg-4">
+                    <label for="q" class="form-label small">Cari nama atau SKU</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input
+                            type="search"
+                            id="q"
+                            name="q"
+                            value="{{ $filters['q'] }}"
+                            class="form-control"
+                            placeholder="Ketik kata kunci…"
+                            maxlength="100"
+                        >
+                    </div>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <label for="category" class="form-label small">Kategori</label>
+                    <select id="category" name="category" class="form-select" data-auto-submit>
+                        <option value="">Semua kategori</option>
+                        @foreach($summary['per_category'] as $category)
+                            <option value="{{ $category->id }}" @selected((int) $filters['category'] === $category->id)>
+                                {{ $category->name }} ({{ $category->products_count }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <label for="status" class="form-label small">Status</label>
+                    <select id="status" name="status" class="form-select" data-auto-submit>
+                        <option value="">Semua status</option>
+                        <option value="aktif" @selected($filters['status'] === 'aktif')>Aktif</option>
+                        <option value="nonaktif" @selected($filters['status'] === 'nonaktif')>Nonaktif</option>
+                        <option value="habis" @selected($filters['status'] === 'habis')>Stok habis</option>
+                    </select>
+                </div>
+                <div class="col-6 col-lg-2">
+                    <label for="sort" class="form-label small">Urutkan</label>
+                    <select id="sort" name="sort" class="form-select" data-auto-submit>
+                        <option value="newest" @selected($filters['sort'] === 'newest')>Terbaru</option>
+                        <option value="name_asc" @selected($filters['sort'] === 'name_asc')>Nama (A-Z)</option>
+                        <option value="price_asc" @selected($filters['sort'] === 'price_asc')>Harga terendah</option>
+                        <option value="price_desc" @selected($filters['sort'] === 'price_desc')>Harga tertinggi</option>
+                    </select>
+                </div>
+                <div class="col-6 col-lg-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-grow-1">
+                        <i class="bi bi-search me-1"></i>Cari
+                    </button>
+                    @if($hasActiveFilters)
+                        <a href="{{ route('products.index') }}" class="btn btn-outline-secondary" title="Hapus filter">
+                            <i class="bi bi-x-lg"></i>
+                        </a>
+                    @endif
+                </div>
+            </form>
         </div>
     </div>
 
     <div class="card">
-        <div class="card-header d-flex align-items-center justify-content-between">
-            <span class="fw-semibold">Daftar Produk</span>
+        <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <div>
+                <span class="fw-semibold">Daftar Produk</span>
+                <span class="text-secondary small ms-2">
+                    {{ $products->total() }} hasil · {{ $searchDurationMs }} ms
+                </span>
+            </div>
             <a href="{{ route('products.create') }}" class="btn btn-primary btn-sm">
                 <i class="bi bi-plus-lg me-1"></i>Tambah Produk
             </a>
         </div>
         <div class="card-body p-0">
-            @if($products->isEmpty())
+            @if($products->isEmpty() && $hasActiveFilters)
+                <div class="text-center py-5 px-3">
+                    <div class="fs-1 text-secondary mb-2"><i class="bi bi-search"></i></div>
+                    <h2 class="h5">Produk tidak ditemukan</h2>
+                    <p class="text-secondary mb-1">Tidak ada produk yang cocok dengan pencarian atau filter Anda.</p>
+                    <p class="text-secondary small mb-3">
+                        Coba perlebar kata kunci (misalnya potongan nama atau SKU) atau hapus filter yang aktif.
+                    </p>
+                    <a href="{{ route('products.index') }}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i>Hapus Semua Filter
+                    </a>
+                </div>
+            @elseif($products->isEmpty())
                 <div class="text-center py-5 px-3">
                     <div class="fs-1 text-secondary mb-2"><i class="bi bi-inbox"></i></div>
                     <h2 class="h5">Belum ada produk</h2>

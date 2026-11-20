@@ -8,6 +8,21 @@
         @method($method)
     @endif
 
+    @if(session('duplicate_product_id'))
+        <div class="alert alert-warning" role="alert">
+            <div class="fw-semibold mb-1">
+                <i class="bi bi-exclamation-triangle me-1"></i>Data produk serupa sudah tersimpan.
+            </div>
+            <div class="small">
+                Produk
+                <a href="{{ route('products.show', session('duplicate_product_id')) }}" class="alert-link">
+                    {{ session('duplicate_product_name') }}
+                </a>
+                sudah menggunakan nama atau SKU tersebut. Periksa kembali sebelum menyimpan.
+            </div>
+        </div>
+    @endif
+
     <div class="row g-3">
         <div class="col-md-7">
             <label for="name" class="form-label">Nama Produk <span class="text-danger">*</span></label>

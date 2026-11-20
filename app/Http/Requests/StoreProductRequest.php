@@ -24,8 +24,8 @@ class StoreProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'sku' => ['required', 'string', 'max:50', Rule::unique('products', 'sku')],
-            'name' => ['required', 'string', 'max:150', Rule::unique('products', 'name')],
+            'sku' => ['required', 'string', 'max:50'],
+            'name' => ['required', 'string', 'max:150'],
             'category_id' => ['required', 'integer', 'exists:categories,id'],
             'price' => ['required', 'numeric', 'min:0', 'max:9999999999.99'],
             'stock' => ['required', 'integer', 'min:0', 'max:2147483647'],

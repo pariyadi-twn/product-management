@@ -131,7 +131,8 @@ class ProductManagementTest extends TestCase
             'status' => 'aktif',
         ]);
 
-        $response->assertSessionHasErrors(['sku', 'name']);
+        $response->assertSessionHasErrors('name');
+        $response->assertSessionHas('duplicate_product_name', 'Produk Lama');
         $this->assertDatabaseCount('products', 1);
     }
 }
