@@ -131,7 +131,7 @@
                     {{ $products->total() }} hasil · {{ $searchDurationMs }} ms
                 </span>
             </div>
-            <a href="{{ route('products.create') }}" class="btn btn-primary btn-sm">
+            <a href="{{ route('products.create') }}" class="btn btn-primary btn-sm ms-auto">
                 <i class="bi bi-plus-lg me-1"></i>Tambah Produk
             </a>
         </div>

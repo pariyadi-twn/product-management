@@ -79,7 +79,7 @@
                 type="number"
                 id="price"
                 name="price"
-                value="{{ old('price', $current?->price) }}"
+                value="{{ old('price', $current !== null ? (float) $current->price : null) }}"
                 class="form-control @error('price') is-invalid @enderror"
                 min="0"
                 max="9999999999.99"
