@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Exceptions\DuplicateProductException;
+use App\Models\ActivityLog;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\User;
@@ -15,6 +16,8 @@ use Illuminate\Support\Facades\DB;
 class ProductService
 {
     public const PER_PAGE = 15;
+
+    public function __construct(private readonly ActivityLogService $activityLogs) {}
 
     /**
      * @param  array{q?: string|null, category?: int|null, status?: string|null, sort?: string|null}  $filters
@@ -112,7 +115,18 @@ class ProductService
                 $this->convertUniqueViolation($exception, $data);
             }
 
-            return $product->load(['category', 'createdBy', 'updatedBy']);
+            $product->load(['category', 'createdBy', 'updatedBy']);
+
+            $this->activityLogs->record(
+                ActivityLog::ACTION_CREATE,
+                $actor,
+                $product,
+                null,
+                $this->activityLogs->snapshot($product),
+                'Menambahkan produk "'.$product->name.'".',
+            );
+
+            return $product;
         });
     }
 
@@ -123,6 +137,8 @@ class ProductService
     {
         return DB::transaction(function () use ($product, $data, $actor): Product {
             $this->ensureUnique($data, $product->id);
+
+            $before = $this->activityLogs->snapshot($product);
 
             $product->fill([
                 ...$data,
@@ -135,14 +151,40 @@ class ProductService
                 $this->convertUniqueViolation($exception, $data, $product->id);
             }
 
-            return $product->load(['category', 'createdBy', 'updatedBy']);
+            $product->load(['category', 'createdBy', 'updatedBy']);
+
+            $changes = $this->activityLogs->changedValues($before, $this->activityLogs->snapshot($product));
+
+            if ($changes['new'] !== []) {
+                $this->activityLogs->record(
+                    ActivityLog::ACTION_UPDATE,
+                    $actor,
+                    $product,
+                    $changes['old'],
+                    $changes['new'],
+                    'Mengubah produk "'.$product->name.'".',
+                );
+            }
+
+            return $product;
         });
     }
 
-    public function delete(Product $product): void
+    public function delete(Product $product, ?User $actor = null): void
     {
-        DB::transaction(function () use ($product): void {
+        DB::transaction(function () use ($product, $actor): void {
+            $snapshot = $this->activityLogs->snapshot($product);
+
             $product->delete();
+
+            $this->activityLogs->record(
+                ActivityLog::ACTION_DELETE,
+                $actor,
+                $product,
+                $snapshot,
+                null,
+                'Menghapus produk "'.$product->name.'".',
+            );
         });
     }
 

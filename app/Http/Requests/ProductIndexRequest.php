@@ -2,10 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Models\ActivityLog;
 use App\Models\Product;
+use App\Services\ActivityLogService;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -70,12 +71,14 @@ class ProductIndexRequest extends FormRequest
 
     protected function failedValidation(Validator $validator): void
     {
-        Log::warning('Pencarian produk gagal karena filter tidak valid.', [
-            'user_id' => $this->user()?->id,
-            'filters' => $this->query(),
-            'errors' => $validator->errors()->all(),
-            'ip' => $this->ip(),
-        ]);
+        app(ActivityLogService::class)->record(
+            ActivityLog::ACTION_SEARCH_ERROR,
+            $this->user(),
+            null,
+            null,
+            ['filters' => $this->query(), 'errors' => $validator->errors()->all()],
+            'Pencarian produk gagal karena filter tidak valid.',
+        );
 
         throw (new ValidationException($validator))
             ->errorBag($this->errorBag)

@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\ActivityLog;
+use App\Models\User;
+use App\Services\ActivityLogService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -15,6 +17,8 @@ use Illuminate\View\View;
 
 class LoginController extends Controller
 {
+    public function __construct(private readonly ActivityLogService $activityLogs) {}
+
     public function show(): View
     {
         return view('auth.login');
@@ -22,13 +26,19 @@ class LoginController extends Controller
 
     public function store(LoginRequest $request): RedirectResponse
     {
+        $email = $request->string('email')->toString();
         $throttleKey = $this->throttleKey($request);
+        $user = User::query()->where('email', $email)->first();
 
         if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
-            Log::warning('Percobaan login melebihi batas.', [
-                'email' => $request->string('email')->toString(),
-                'ip' => $request->ip(),
-            ]);
+            $this->activityLogs->record(
+                ActivityLog::ACTION_LOGIN,
+                $user,
+                null,
+                null,
+                ['email' => $email, 'success' => false, 'reason' => 'throttled'],
+                'Percobaan masuk melebihi batas untuk email '.$email.'.',
+            );
 
             throw ValidationException::withMessages([
                 'email' => 'Terlalu banyak percobaan masuk. Silakan coba lagi dalam 1 menit.',
@@ -38,10 +48,14 @@ class LoginController extends Controller
         if (! Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
             RateLimiter::hit($throttleKey, 60);
 
-            Log::warning('Login gagal.', [
-                'email' => $request->string('email')->toString(),
-                'ip' => $request->ip(),
-            ]);
+            $this->activityLogs->record(
+                ActivityLog::ACTION_LOGIN,
+                $user,
+                null,
+                null,
+                ['email' => $email, 'success' => false, 'reason' => 'invalid_credentials'],
+                'Login gagal untuk email '.$email.'.',
+            );
 
             throw ValidationException::withMessages([
                 'email' => 'Email atau kata sandi yang Anda masukkan salah.',
@@ -52,12 +66,16 @@ class LoginController extends Controller
         $request->session()->regenerate();
 
         $request->user()->update(['last_login_at' => now()]);
+        $request->session()->put('auth.last_activity_at', now()->getTimestamp());
 
-        Log::info('Login berhasil.', [
-            'user_id' => $request->user()->id,
-            'email' => $request->user()->email,
-            'ip' => $request->ip(),
-        ]);
+        $this->activityLogs->record(
+            ActivityLog::ACTION_LOGIN,
+            $request->user(),
+            null,
+            null,
+            ['email' => $request->user()->email, 'success' => true],
+            'Masuk ke aplikasi.',
+        );
 
         return redirect()
             ->intended(route('products.index'))
@@ -66,10 +84,18 @@ class LoginController extends Controller
 
     public function destroy(Request $request): RedirectResponse
     {
-        Log::info('Logout.', [
-            'user_id' => $request->user()?->id,
-            'ip' => $request->ip(),
-        ]);
+        $user = $request->user();
+
+        if ($user !== null) {
+            $this->activityLogs->record(
+                ActivityLog::ACTION_LOGOUT,
+                $user,
+                null,
+                null,
+                ['success' => true],
+                'Keluar dari aplikasi.',
+            );
+        }
 
         Auth::logout();
 

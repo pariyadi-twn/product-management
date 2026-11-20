@@ -70,24 +70,17 @@
                             <p>Katalog Produk</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="{{ route('activity-logs.index') }}" class="nav-link {{ request()->routeIs('activity-logs.*') ? 'active' : '' }}">
+                            <i class="nav-icon bi bi-clock-history"></i>
+                            <p>Catatan Aktivitas</p>
+                        </a>
+                    </li>
                     @if(auth()->user()->isAdmin())
-                        <li class="nav-item">
-                            <a href="#" class="nav-link disabled">
-                                <i class="nav-icon bi bi-clock-history"></i>
-                                <p>Catatan Aktivitas</p>
-                            </a>
-                        </li>
                         <li class="nav-item">
                             <a href="#" class="nav-link disabled">
                                 <i class="nav-icon bi bi-activity"></i>
                                 <p>Pantau Performa</p>
-                            </a>
-                        </li>
-                    @else
-                        <li class="nav-item">
-                            <a href="#" class="nav-link disabled">
-                                <i class="nav-icon bi bi-clock-history"></i>
-                                <p>Catatan Aktivitas</p>
                             </a>
                         </li>
                     @endif

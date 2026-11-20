@@ -6,21 +6,46 @@ use App\Exceptions\DuplicateProductException;
 use App\Http\Requests\ProductIndexRequest;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use App\Models\ActivityLog;
 use App\Models\Category;
 use App\Models\Product;
+use App\Services\ActivityLogService;
 use App\Services\ProductService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Throwable;
 
 class ProductController extends Controller
 {
-    public function __construct(private readonly ProductService $products) {}
+    public function __construct(
+        private readonly ProductService $products,
+        private readonly ActivityLogService $activityLogs,
+    ) {}
 
     public function index(ProductIndexRequest $request): View
     {
         $startedAt = microtime(true);
-        $products = $this->products->paginate($request->filters());
+
+        try {
+            $products = $this->products->paginate($request->filters());
+        } catch (Throwable $exception) {
+            try {
+                $this->activityLogs->record(
+                    ActivityLog::ACTION_SEARCH_ERROR,
+                    $request->user(),
+                    null,
+                    null,
+                    ['filters' => $request->filters(), 'error' => $exception->getMessage()],
+                    'Pencarian produk gagal dijalankan.',
+                );
+            } catch (Throwable) {
+                // Jangan menutupi error utama bila pencatatan juga gagal.
+            }
+
+            throw $exception;
+        }
+
         $durationMs = (int) round((microtime(true) - $startedAt) * 1000);
 
         $request->attributes->set('performance.result_count', $products->total());
@@ -87,7 +112,7 @@ class ProductController extends Controller
     {
         $name = $product->name;
 
-        $this->products->delete($product);
+        $this->products->delete($product, $request->user());
 
         return redirect()
             ->route('products.index')
