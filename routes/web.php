@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Controllers\ActivityLogController;
+use App\Http\Controllers\AlertController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\HelpController;
+use App\Http\Controllers\MonitoringController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 
@@ -19,4 +22,11 @@ Route::middleware(['auth', 'idle'])->group(function (): void {
 
     Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity-logs.index');
     Route::get('/activity-logs/{activityLog}', [ActivityLogController::class, 'show'])->name('activity-logs.show');
+
+    Route::get('/help', [HelpController::class, 'index'])->name('help.index');
+
+    Route::middleware('role:admin')->group(function (): void {
+        Route::get('/monitoring', [MonitoringController::class, 'index'])->name('monitoring.index');
+        Route::patch('/alerts/{alert}/resolve', [AlertController::class, 'resolve'])->name('alerts.resolve');
+    });
 });

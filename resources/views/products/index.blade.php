@@ -85,8 +85,8 @@
                     <select id="category" name="category" class="form-select" data-auto-submit>
                         <option value="">Semua kategori</option>
                         @foreach($summary['per_category'] as $category)
-                            <option value="{{ $category->id }}" @selected((int) $filters['category'] === $category->id)>
-                                {{ $category->name }} ({{ $category->products_count }})
+                            <option value="{{ $category['id'] }}" @selected((int) $filters['category'] === $category['id'])>
+                                {{ $category['name'] }} ({{ $category['products_count'] }})
                             </option>
                         @endforeach
                     </select>

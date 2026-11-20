@@ -11,8 +11,10 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Services\ActivityLogService;
 use App\Services\ProductService;
+use App\Support\PerformanceMetrics;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 use Throwable;
 
@@ -21,9 +23,10 @@ class ProductController extends Controller
     public function __construct(
         private readonly ProductService $products,
         private readonly ActivityLogService $activityLogs,
+        private readonly PerformanceMetrics $metrics,
     ) {}
 
-    public function index(ProductIndexRequest $request): View
+    public function index(ProductIndexRequest $request): Response
     {
         $startedAt = microtime(true);
 
@@ -48,16 +51,18 @@ class ProductController extends Controller
 
         $durationMs = (int) round((microtime(true) - $startedAt) * 1000);
 
-        $request->attributes->set('performance.result_count', $products->total());
-        $request->attributes->set('performance.duration_ms', $durationMs);
+        $this->metrics->resultCount = $products->total();
+        $this->metrics->durationMs = $durationMs;
 
-        return view('products.index', [
-            'products' => $products,
-            'summary' => $this->products->summary(),
-            'filters' => $request->filters(),
-            'hasActiveFilters' => $request->hasActiveFilters(),
-            'searchDurationMs' => $durationMs,
-        ]);
+        return response()
+            ->view('products.index', [
+                'products' => $products,
+                'summary' => $this->products->summary(),
+                'filters' => $request->filters(),
+                'hasActiveFilters' => $request->hasActiveFilters(),
+                'searchDurationMs' => $durationMs,
+            ])
+            ->header('X-Search-Duration-Ms', (string) $durationMs);
     }
 
     public function create(): View

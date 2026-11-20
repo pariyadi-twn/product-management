@@ -1,0 +1,208 @@
+
+         /\      Grafana   /‾‾/  
+    /\  /  \     |\  __   /  /   
+   /  \/    \    | |/ /  /   ‾‾\ 
+  /          \   |   (  |  (‾)  |
+ / __________ \  |_|\_\  \_____/ 
+
+
+     execution: local
+        script: tests/Stress/search.js
+        output: -
+
+     scenarios: (100.00%) 2 scenarios, 15 max VUs, 1m2s max duration (incl. graceful stop):
+              * search: 10 looping VUs for 30s (exec: searchScenario, gracefulStop: 30s)
+              * catalog: 5 looping VUs for 30s (exec: catalogScenario, startTime: 2s, gracefulStop: 30s)
+
+
+Run       [ 100% ] setup()
+search    [   0% ]
+catalog   [   0% ]
+
+Run       [ 100% ] setup()
+search    [   0% ]
+catalog   [   0% ]
+
+running (0m03.0s), 10/15 VUs, 6 complete and 0 interrupted iterations
+search    [   3% ] 10 VUs   00.9s/30s
+catalog • [   0% ] waiting  1.1s
+
+running (0m04.0s), 10/15 VUs, 10 complete and 0 interrupted iterations
+search    [   6% ] 10 VUs   01.9s/30s
+catalog • [   0% ] waiting  0.1s
+
+running (0m05.0s), 15/15 VUs, 10 complete and 0 interrupted iterations
+search    [  10% ] 10 VUs  02.9s/30s
+catalog   [   3% ] 5 VUs   00.9s/30s
+
+running (0m06.0s), 15/15 VUs, 15 complete and 0 interrupted iterations
+search    [  13% ] 10 VUs  03.9s/30s
+catalog   [   6% ] 5 VUs   01.9s/30s
+
+running (0m07.0s), 15/15 VUs, 23 complete and 0 interrupted iterations
+search    [  16% ] 10 VUs  04.9s/30s
+catalog   [  10% ] 5 VUs   02.9s/30s
+
+running (0m08.0s), 15/15 VUs, 25 complete and 0 interrupted iterations
+search    [  20% ] 10 VUs  05.9s/30s
+catalog   [  13% ] 5 VUs   03.9s/30s
+
+running (0m09.0s), 15/15 VUs, 25 complete and 0 interrupted iterations
+search    [  23% ] 10 VUs  06.9s/30s
+catalog   [  16% ] 5 VUs   04.9s/30s
+
+running (0m10.0s), 15/15 VUs, 40 complete and 0 interrupted iterations
+search    [  26% ] 10 VUs  07.9s/30s
+catalog   [  20% ] 5 VUs   05.9s/30s
+
+running (0m11.0s), 15/15 VUs, 40 complete and 0 interrupted iterations
+search    [  30% ] 10 VUs  08.9s/30s
+catalog   [  23% ] 5 VUs   06.9s/30s
+
+running (0m12.0s), 15/15 VUs, 40 complete and 0 interrupted iterations
+search    [  33% ] 10 VUs  09.9s/30s
+catalog   [  26% ] 5 VUs   07.9s/30s
+
+running (0m13.0s), 15/15 VUs, 55 complete and 0 interrupted iterations
+search    [  36% ] 10 VUs  10.9s/30s
+catalog   [  30% ] 5 VUs   08.9s/30s
+
+running (0m14.0s), 15/15 VUs, 55 complete and 0 interrupted iterations
+search    [  40% ] 10 VUs  11.9s/30s
+catalog   [  33% ] 5 VUs   09.9s/30s
+
+running (0m15.0s), 15/15 VUs, 67 complete and 0 interrupted iterations
+search    [  43% ] 10 VUs  12.9s/30s
+catalog   [  36% ] 5 VUs   10.9s/30s
+
+running (0m16.0s), 15/15 VUs, 75 complete and 0 interrupted iterations
+search    [  46% ] 10 VUs  13.9s/30s
+catalog   [  40% ] 5 VUs   11.9s/30s
+
+running (0m17.0s), 15/15 VUs, 78 complete and 0 interrupted iterations
+search    [  50% ] 10 VUs  14.9s/30s
+catalog   [  43% ] 5 VUs   12.9s/30s
+
+running (0m18.0s), 15/15 VUs, 90 complete and 0 interrupted iterations
+search    [  53% ] 10 VUs  15.9s/30s
+catalog   [  46% ] 5 VUs   13.9s/30s
+
+running (0m19.0s), 15/15 VUs, 90 complete and 0 interrupted iterations
+search    [  56% ] 10 VUs  16.9s/30s
+catalog   [  50% ] 5 VUs   14.9s/30s
+
+running (0m20.0s), 15/15 VUs, 107 complete and 0 interrupted iterations
+search    [  60% ] 10 VUs  17.9s/30s
+catalog   [  53% ] 5 VUs   15.9s/30s
+
+running (0m21.0s), 15/15 VUs, 119 complete and 0 interrupted iterations
+search    [  63% ] 10 VUs  18.9s/30s
+catalog   [  56% ] 5 VUs   16.9s/30s
+
+running (0m22.0s), 15/15 VUs, 123 complete and 0 interrupted iterations
+search    [  66% ] 10 VUs  19.9s/30s
+catalog   [  60% ] 5 VUs   17.9s/30s
+
+running (0m23.0s), 15/15 VUs, 131 complete and 0 interrupted iterations
+search    [  70% ] 10 VUs  20.9s/30s
+catalog   [  63% ] 5 VUs   18.9s/30s
+
+running (0m24.0s), 15/15 VUs, 146 complete and 0 interrupted iterations
+search    [  73% ] 10 VUs  21.9s/30s
+catalog   [  66% ] 5 VUs   19.9s/30s
+
+running (0m25.0s), 15/15 VUs, 146 complete and 0 interrupted iterations
+search    [  76% ] 10 VUs  22.9s/30s
+catalog   [  70% ] 5 VUs   20.9s/30s
+
+running (0m26.0s), 15/15 VUs, 157 complete and 0 interrupted iterations
+search    [  80% ] 10 VUs  23.9s/30s
+catalog   [  73% ] 5 VUs   21.9s/30s
+
+running (0m27.0s), 15/15 VUs, 168 complete and 0 interrupted iterations
+search    [  83% ] 10 VUs  24.9s/30s
+catalog   [  76% ] 5 VUs   22.9s/30s
+
+running (0m28.0s), 15/15 VUs, 175 complete and 0 interrupted iterations
+search    [  86% ] 10 VUs  25.9s/30s
+catalog   [  80% ] 5 VUs   23.9s/30s
+
+running (0m29.0s), 15/15 VUs, 181 complete and 0 interrupted iterations
+search    [  90% ] 10 VUs  26.9s/30s
+catalog   [  83% ] 5 VUs   24.9s/30s
+
+running (0m30.0s), 15/15 VUs, 195 complete and 0 interrupted iterations
+search    [  93% ] 10 VUs  27.9s/30s
+catalog   [  86% ] 5 VUs   25.9s/30s
+
+running (0m31.0s), 15/15 VUs, 195 complete and 0 interrupted iterations
+search    [  96% ] 10 VUs  28.9s/30s
+catalog   [  90% ] 5 VUs   26.9s/30s
+
+running (0m32.0s), 15/15 VUs, 209 complete and 0 interrupted iterations
+search    [ 100% ] 10 VUs  29.9s/30s
+catalog   [  93% ] 5 VUs   27.9s/30s
+
+running (0m33.0s), 06/15 VUs, 218 complete and 0 interrupted iterations
+search  ↓ [ 100% ] 10 VUs  30s
+catalog   [  96% ] 5 VUs   28.9s/30s
+
+running (0m34.0s), 05/15 VUs, 224 complete and 0 interrupted iterations
+search  ✓ [ 100% ] 10 VUs  30s
+catalog   [ 100% ] 5 VUs   29.9s/30s
+
+running (0m35.0s), 04/15 VUs, 229 complete and 0 interrupted iterations
+search  ✓ [ 100% ] 10 VUs  30s
+catalog ↓ [ 100% ] 5 VUs   30s
+
+
+  █ THRESHOLDS 
+
+    http_req_duration{scenario:catalog}
+    ✗ 'p(95)<2000' p(95)=2.64s
+
+    http_req_failed
+    ✓ 'rate<0.01' rate=0.00%
+
+    search_duration_ms
+    ✗ 'p(95)<300' p(95)=751.8
+
+
+  █ TOTAL RESULTS 
+
+    checks_total.......: 235     6.69651/s
+    checks_succeeded...: 100.00% 235 out of 235
+    checks_failed......: 0.00%   0 out of 235
+
+    ✓ halaman login tampil
+    ✓ login berhasil
+    ✓ hasil pencarian tampil
+    ✓ katalog tampil
+
+    CUSTOM
+    search_duration_ms.............: avg=370.521472 min=57       med=324   max=957   p(90)=693   p(95)=751.8
+
+    HTTP
+    http_req_duration..............: avg=1.67s      min=281.36ms med=1.63s max=3.71s p(90)=2.65s p(95)=2.95s
+      { expected_response:true }...: avg=1.67s      min=281.36ms med=1.63s max=3.71s p(90)=2.65s p(95)=2.95s
+      { scenario:catalog }.........: avg=1.69s      min=447.68ms med=1.81s max=2.86s p(90)=2.58s p(95)=2.64s
+    http_req_failed................: 0.00%  0 out of 235
+    http_reqs......................: 235    6.69651/s
+
+    EXECUTION
+    iteration_duration.............: avg=1.97s      min=486.11ms med=1.99s max=3.91s p(90)=3.06s p(95)=3.2s 
+    iterations.....................: 233    6.639518/s
+    vus............................: 4      min=0        max=15
+    vus_max........................: 15     min=15       max=15
+
+    NETWORK
+    data_received..................: 11 MB  305 kB/s
+    data_sent......................: 197 kB 5.6 kB/s
+
+
+
+
+running (0m35.1s), 00/15 VUs, 233 complete and 0 interrupted iterations
+search  ✓ [ 100% ] 10 VUs  30s
+catalog ✓ [ 100% ] 5 VUs   30s
+time="2026-11-20T12:27:55+07:00" level=error msg="thresholds on metrics 'http_req_duration{scenario:catalog}, search_duration_ms' have been crossed"

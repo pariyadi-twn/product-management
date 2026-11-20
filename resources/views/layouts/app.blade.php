@@ -26,6 +26,16 @@
             </ul>
 
             <ul class="navbar-nav ms-auto">
+                @if(auth()->user()->isAdmin())
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="{{ route('monitoring.index') }}" title="Peringatan aktif">
+                            <i class="bi bi-bell"></i>
+                            @if(($unresolvedAlertCount ?? 0) > 0)
+                                <span class="navbar-badge badge text-bg-danger">{{ $unresolvedAlertCount }}</span>
+                            @endif
+                        </a>
+                    </li>
+                @endif
                 <li class="nav-item dropdown user-menu">
                     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="bi bi-person-circle fs-5 me-1"></i>
@@ -78,14 +88,14 @@
                     </li>
                     @if(auth()->user()->isAdmin())
                         <li class="nav-item">
-                            <a href="#" class="nav-link disabled">
+                            <a href="{{ route('monitoring.index') }}" class="nav-link {{ request()->routeIs('monitoring.*') ? 'active' : '' }}">
                                 <i class="nav-icon bi bi-activity"></i>
                                 <p>Pantau Performa</p>
                             </a>
                         </li>
                     @endif
                     <li class="nav-item">
-                        <a href="#" class="nav-link disabled">
+                        <a href="{{ route('help.index') }}" class="nav-link {{ request()->routeIs('help.*') ? 'active' : '' }}">
                             <i class="nav-icon bi bi-question-circle"></i>
                             <p>Bantuan</p>
                         </a>

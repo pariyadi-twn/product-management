@@ -10,7 +10,7 @@ use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\QueryException;
-use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class ProductService
@@ -31,12 +31,7 @@ class ProductService
         $keyword = trim((string) ($filters['q'] ?? ''));
 
         if ($keyword !== '') {
-            $escaped = addcslashes($keyword, '%_\\');
-
-            $query->where(function (Builder $query) use ($escaped): void {
-                $query->where('name', 'like', '%'.$escaped.'%')
-                    ->orWhere('sku', 'like', '%'.$escaped.'%');
-            });
+            $this->applyKeywordFilter($query, $keyword);
         }
 
         if (! empty($filters['category'])) {
@@ -62,31 +57,90 @@ class ProductService
     }
 
     /**
+     * Pencarian kata kunci pada nama dan SKU. Karakter wildcard LIKE di-escape
+     * agar input pengguna tidak mengubah pola pencarian.
+     *
+     * @param  Builder<Product>  $query
+     */
+    private function applyKeywordFilter(Builder $query, string $keyword): void
+    {
+        $escaped = addcslashes($keyword, '%_\\');
+
+        $query->where(function (Builder $query) use ($escaped): void {
+            $query->where('name', 'like', '%'.$escaped.'%')
+                ->orWhere('sku', 'like', '%'.$escaped.'%');
+        });
+    }
+
+    /**
      * @return array{
      *     total: int,
      *     categories: int,
      *     low_stock: int,
      *     out_of_stock: int,
-     *     per_category: Collection<int, Category>
+     *     per_category: list<array{id: int, name: string, description: string|null, products_count: int}>
      * }
      */
     public function summary(): array
     {
+        if (app()->environment('testing')) {
+            return $this->buildSummary();
+        }
+
+        return Cache::remember('products.summary', now()->addMinutes(5), fn (): array => $this->buildSummary());
+    }
+
+    /**
+     * @return array{
+     *     total: int,
+     *     categories: int,
+     *     low_stock: int,
+     *     out_of_stock: int,
+     *     per_category: list<array{id: int, name: string, description: string|null, products_count: int}>
+     * }
+     */
+    private function buildSummary(): array
+    {
         $lowStockThreshold = (int) config('monitoring.low_stock_threshold', 10);
 
+        $statistics = Product::query()
+            ->selectRaw(
+                'COUNT(*) as total,
+                 SUM(CASE WHEN stock = 0 THEN 1 ELSE 0 END) as out_of_stock,
+                 SUM(CASE WHEN stock > 0 AND stock <= ? THEN 1 ELSE 0 END) as low_stock',
+                [$lowStockThreshold],
+            )
+            ->first();
+
+        $countsByCategory = Product::query()
+            ->selectRaw('category_id, COUNT(*) as aggregate')
+            ->groupBy('category_id')
+            ->pluck('aggregate', 'category_id');
+
+        $categories = Category::query()->orderBy('name')->get();
+
+        $perCategory = $categories
+            ->map(fn (Category $category): array => [
+                'id' => $category->id,
+                'name' => $category->name,
+                'description' => $category->description,
+                'products_count' => (int) ($countsByCategory[$category->id] ?? 0),
+            ])
+            ->values()
+            ->all();
+
         return [
-            'total' => Product::query()->count(),
-            'categories' => Category::query()->count(),
-            'low_stock' => Product::query()
-                ->where('stock', '>', 0)
-                ->where('stock', '<=', $lowStockThreshold)
-                ->count(),
-            'out_of_stock' => Product::query()->where('stock', 0)->count(),
-            'per_category' => Category::query()
-                ->withCount('products')
-                ->orderBy('name')
-                ->get(),
+            'total' => (int) ($statistics->total ?? 0),
+            'categories' => $categories->count(),
+            'low_stock' => (int) ($statistics->low_stock ?? 0),
+            'out_of_stock' => (int) ($statistics->out_of_stock ?? 0),
+            'per_category' => $perCategory,
         ];
+    }
+
+    private function forgetSummary(): void
+    {
+        Cache::forget('products.summary');
     }
 
     public function findDuplicate(string $field, string $value, ?int $ignoreId = null): ?Product
@@ -125,6 +179,8 @@ class ProductService
                 $this->activityLogs->snapshot($product),
                 'Menambahkan produk "'.$product->name.'".',
             );
+
+            $this->forgetSummary();
 
             return $product;
         });
@@ -166,6 +222,8 @@ class ProductService
                 );
             }
 
+            $this->forgetSummary();
+
             return $product;
         });
     }
@@ -185,6 +243,8 @@ class ProductService
                 null,
                 'Menghapus produk "'.$product->name.'".',
             );
+
+            $this->forgetSummary();
         });
     }
 

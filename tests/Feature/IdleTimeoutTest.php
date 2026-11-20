@@ -4,13 +4,10 @@ namespace Tests\Feature;
 
 use App\Models\ActivityLog;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class IdleTimeoutTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_session_is_ended_after_idle_timeout(): void
     {
         $user = User::factory()->create();
