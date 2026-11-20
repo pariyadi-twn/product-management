@@ -1,59 +1,180 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Product Management Service
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Modul internal berbasis Laravel 13 untuk mengelola data produk: katalog, pencarian, CRUD, catatan aktivitas, pemantauan performa, dan peringatan otomatis.
 
-## About Laravel
+## Fitur
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Login/logout, rate limit, idle timeout, dan pembatasan peran `admin`/`staff`.
+- Katalog produk dengan ringkasan jumlah, pencarian nama/SKU, filter kategori/status, dan pengurutan.
+- CRUD produk dengan validasi server, validasi tampilan, pencegahan nama/SKU ganda, dan soft delete.
+- Catatan aktivitas: tambah, ubah, hapus, masuk, keluar, dan pencarian gagal; lengkap dengan nilai lama/baru.
+- Pemantauan performa: durasi permintaan, jumlah error, kecepatan pencarian, dan pencarian terbaru.
+- Peringatan otomatis untuk error rate, pencarian lambat, dan login gagal berulang.
+- Halaman bantuan in-app dan dokumentasi `.docx` di folder `docs`.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Teknologi
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- PHP 8.3+ (diuji pada PHP 8.4)
+- Laravel 13
+- MySQL 8
+- Bootstrap 5 + AdminLTE 4 + Vite
+- PHPUnit 12
 
-## Learning Laravel
+## Persyaratan
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- PHP 8.3+ dengan ekstensi `pdo_mysql`, `mbstring`, `xml`, `curl`
+- Composer
+- Node.js 18+ dan npm
+- MySQL 8
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Instalasi
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+cp .env.example .env
+php artisan key:generate
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Sesuaikan koneksi database pada `.env`:
 
-## Contributing
+```dotenv
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=product-m
+DB_USERNAME=root
+DB_PASSWORD=
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Buat database jika belum ada, lalu jalankan migrasi dan seeder:
 
-## Code of Conduct
+```bash
+mysql -u root -p -e "CREATE DATABASE \`product-m\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+php artisan migrate --seed
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Instal dan build aset frontend:
 
-## Security Vulnerabilities
+```bash
+npm install
+npm run build
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Jalankan aplikasi:
 
-## License
+```bash
+php artisan serve
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
-# product-management
+Buka `http://127.0.0.1:8000`.
+
+## Akun Demo
+
+| Peran | Email | Kata Sandi |
+|---|---|---|
+| Admin | `admin@example.com` | `password` |
+| Staff | `staff@example.com` | `password` |
+
+Akun dibuat oleh `UserSeeder`. Ganti kata sandi sebelum dipakai di luar lingkungan lokal.
+
+## Peran Pengguna
+
+- **Admin**: seluruh fitur produk dan aktivitas, membuka Pantau Performa, dan menandai peringatan selesai.
+- **Staff**: katalog, pencarian, CRUD produk, catatan aktivitas, dan bantuan.
+
+## Pengujian
+
+Pengujian memakai database MySQL terpisah agar tidak menyentuh data pengembangan.
+
+```bash
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS \`product_m_test\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+php artisan config:clear
+php artisan test
+```
+
+`phpunit.xml` sudah mengarah ke `product_m_test`. Kredensial database dibaca dari `.env`.
+
+Konfigurasi yang di-cache harus dibersihkan sebelum menjalankan test:
+
+```bash
+php artisan optimize:clear
+```
+
+## Scheduler
+
+Pemeriksa ambang batas dijalankan setiap 5 menit:
+
+```bash
+php artisan monitoring:check-alerts
+```
+
+Untuk lokal:
+
+```bash
+php artisan schedule:work
+```
+
+Di server, tambahkan cron:
+
+```cron
+* * * * * cd /path/ke/aplikasi && php artisan schedule:run >> /dev/null 2>&1
+```
+
+## Stress Test
+
+Buat data uji:
+
+```bash
+php artisan products:stress-seed 10000 --fresh
+php artisan products:stress-seed 50000 --fresh
+```
+
+Bersihkan data uji:
+
+```bash
+php artisan products:stress-seed --clean
+```
+
+Jalankan k6 (memerlukan k6 terpasang):
+
+```bash
+K6_NO_COOKIES_RESET=true BASE_URL=http://127.0.0.1:8000 \
+  k6 run tests/Stress/search.js
+```
+
+`K6_NO_COOKIES_RESET=true` wajib agar cookie sesi login tidak dihapus di antara iterasi k6. VU dan durasi dapat diatur:
+
+```bash
+K6_NO_COOKIES_RESET=true BASE_URL=http://127.0.0.1:8000 \
+  SEARCH_VUS=5 CATALOG_VUS=3 DURATION=20s \
+  k6 run tests/Stress/search.js
+```
+
+Untuk hasil yang lebih representatif, gunakan Nginx + PHP-FPM, `APP_DEBUG=false`, dan `php artisan optimize`. Hasil pengujian ada pada `docs/03-laporan-pengujian.docx`.
+
+## Struktur Penting
+
+```text
+app/Http/Controllers     Controller tipis
+app/Http/Middleware      Idle timeout, role, performance logger
+app/Http/Requests        Validasi formulir dan filter
+app/Services             ProductService, ActivityLogService, PerformanceLogService, AlertService
+app/Models               Product, Category, ActivityLog, PerformanceLog, Alert, User
+database/migrations      Skema database
+database/seeders         Data awal dan akun demo
+resources/views          Tampilan AdminLTE
+tests/Feature            Pengujian integrasi dan sistem
+tests/Stress             Skrip k6
+docs                     Dokumentasi teknis, pengguna, dan laporan pengujian
+```
+
+## Catatan
+
+- Kategori hanya di-seed; belum ada CRUD kategori.
+- Produk dihapus secara lunak. Nama/SKU tetap unik termasuk terhadap produk yang sudah dihapus.
+- Peringatan otomatis tampil di dashboard (belum ada notifikasi email).
+- Sesi berakhir otomatis setelah `SESSION_IDLE_TIMEOUT` menit tanpa aktivitas.
+- Dokumentasi `.docx`:
+  - `docs/01-dokumentasi-teknis.docx`
+  - `docs/02-dokumentasi-pengguna.docx`
+  - `docs/03-laporan-pengujian.docx`
