@@ -178,3 +178,4 @@ docs                     Dokumentasi teknis, pengguna, dan laporan pengujian
   - `docs/01-dokumentasi-teknis.docx`
   - `docs/02-dokumentasi-pengguna.docx`
   - `docs/03-laporan-pengujian.docx`
+- Presentasi proyek: `docs/04-presentasi-proyek.pptx` (15 slide, termasuk catatan pembicara).
